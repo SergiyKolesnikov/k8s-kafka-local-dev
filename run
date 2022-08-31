@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# -----------------------------------------------------------------------------
+# A script with common alias functions for the local development. It is based
+# on this example:
+# https://github.com/nickjj/docker-flask-example/blob/5650d589357004003a30d88c433d341a2193d155/run
+# -----------------------------------------------------------------------------
+
+set -o errexit  # Exit immediately on an error
+set -o pipefail  # The exit status is the status of the last command
+set -o nounset  # Treat unset variables as an error
+
+# -----------------------------------------------------------------------------
+# Predefined helper functions.
+# Those that start with _ and aren't listed in this script's help menu.
+# -----------------------------------------------------------------------------
+
+function _print_execution_time {
+    # Print the execution time of an alias function or print the help text
+    local TIMEFORMAT=$'\nTask completed in %3lR'
+    time "${@:-help}"
+}
+
+function help {
+    # Print the help text
+    echo -e "$0 <task> [args]\n\nTasks:"
+    compgen -A function | grep -v "^_" | cat -n
+}
+
+# -----------------------------------------------------------------------------
+# User defined helper functions.
+# Those that start with _ and aren't listed in this script's help menu.
+# -----------------------------------------------------------------------------
+
+function _helper {
+    # Example of a useless helper
+    :
+}
+
+# -----------------------------------------------------------------------------
+# User defined alias functions.
+# -----------------------------------------------------------------------------
+
+CLUSTER_CONFIG="deploy/kind-cluster.yaml"
+TILTFILE="Tiltfile"
+
+function up {
+    ctlptl apply --filename "$CLUSTER_CONFIG"
+    tilt up --file "$TILTFILE"
+}
+
+function down {
+    tilt down --file "$TILTFILE"
+    ctlptl delete --filename "$CLUSTER_CONFIG"
+}
+
+# -----------------------------------------------------------------------------
+_print_execution_time "$@"

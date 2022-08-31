@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scala-app-deployment
+  labels:
+    name: scala-app-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: scala-app-component
+  template:
+    metadata:
+      labels:
+        component: scala-app-component
+    spec:
+      containers:
+        - name: scala-app-container
+          image: zeppelin/k8s-local-dev
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          hostPath:
+            path: /mnt/host-volumes
