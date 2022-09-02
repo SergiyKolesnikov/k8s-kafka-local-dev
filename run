@@ -45,11 +45,19 @@ CLUSTER_CONFIG="deploy/kind-cluster.yaml"
 TILTFILE="Tiltfile"
 
 function up {
+    ## Start the K8s cluster and Tilt
     ctlptl apply --filename "$CLUSTER_CONFIG"
-    tilt up --file "$TILTFILE"
+    # Because Tilt is interactive (expects input and prints output), the output
+    # needs to be redirected to /dev/null, so that tilt's execution is not
+    # suspended when it is started in the background.
+    tilt up --file "$TILTFILE" >/dev/null &
+    echo -e "\n‍🔧 Tilt started on \033[0;32mhttp://localhost:10350/\033[0m"
 }
 
 function down {
+    ## Stop Tilt, delete all resources created by Tilt, and stop the K8s
+    ## cluster
+    killall tilt
     tilt down --file "$TILTFILE"
     ctlptl delete --filename "$CLUSTER_CONFIG"
 }
