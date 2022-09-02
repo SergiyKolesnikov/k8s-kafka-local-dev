@@ -21,6 +21,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+          ports:
+            - containerPort: 8080
       volumes:
         - name: data
           hostPath:

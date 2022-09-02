@@ -19,4 +19,4 @@ k8s_yaml("deploy/k8s-resources.yaml")
 
 # Bundles the above pieces together. Allows additional configuration, such as
 # port forwarding.
-k8s_resource("scala-app-deployment", labels=["scala-app"])
+k8s_resource("scala-app-deployment", labels=["scala-app"], port_forwards=8080)
