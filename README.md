@@ -53,3 +53,31 @@ rebuild and redeployment of the corresponding artifacts. That is, you will
 immediately see the corresponding change.
 
 Tear down the local dev environment with `./run down`.
+
+## TODO
+
+* Add Kafka service
+* Add Kafka-Connect cluster (https://strimzi.io/blog/2021/03/29/connector-build/)
+* Add Kafka Schema Registry
+* Add PostgreSQL service
+* Add S3 compatible service (MinIO)
+
+## Notes
+
+### Strimzi (Kafka) installation instructions
+
+https://enjoytechnology.netlify.app/2020/05/18/insall-kafka-strimzi-operator-into-k3s/#deploy-strimzi-kafka-operator
+
+Think about how to automate it in Tilt.
+
+``` yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kafka
+
+```
+
+* https://strimzi.io/install/latest?namespace=kafka
+* https://strimzi.io/examples/latest/kafka/kafka-ephemeral.yaml
