@@ -1,8 +1,14 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: scala-app-deployment
+  namespace: apps
   labels:
     name: scala-app-name
 spec:

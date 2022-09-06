@@ -61,15 +61,17 @@ Tear down the local dev environment with `./run down`.
 * Add Kafka Schema Registry
 * Add PostgreSQL service
 * Add S3 compatible service (MinIO)
+* Add AKHQ Kafka WebUI (https://github.com/tchiotludo/akhq/tree/dev/helm/akhq)
 
 ## Notes
 
 ### Strimzi (Kafka) installation instructions
 
-https://enjoytechnology.netlify.app/2020/05/18/insall-kafka-strimzi-operator-into-k3s/#deploy-strimzi-kafka-operator
+https://strimzi.io/quickstarts/
 
-Think about how to automate it in Tilt.
+Think about how to automate it in Tilt including downloading the latest definitions on `tilt up`.
 
+Create the kafka namespace:
 ``` yaml
 ---
 apiVersion: v1
@@ -78,6 +80,8 @@ metadata:
   name: kafka
 
 ```
+YAML definitions:
+* Operator: https://strimzi.io/install/latest?namespace=kafka
+* Kafka CRD (had to add "namespace: kafka" manually): https://strimzi.io/examples/latest/kafka/kafka-ephemeral.yaml
 
-* https://strimzi.io/install/latest?namespace=kafka
-* https://strimzi.io/examples/latest/kafka/kafka-ephemeral.yaml
+Examples of other custom resource definitions: https://github.com/strimzi/strimzi-kafka-operator/tree/0.30.0/examples
