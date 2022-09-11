@@ -57,12 +57,9 @@ Tear down the local dev environment with `./run down`.
 
 ## TODO
 
-* Add Kafka service
-* Add Kafka-Connect cluster (https://strimzi.io/blog/2021/03/29/connector-build/ )
-* Add Kafka Schema Registry
-* Add PostgreSQL service
 * Add S3 compatible service (MinIO)
-* Add AKHQ Kafka WebUI (https://github.com/tchiotludo/akhq/tree/dev/helm/akhq )
+* Use helm to install Strimzi Kafka operator ()
+* Add PostgreSQL service
 
 ## Notes
 
