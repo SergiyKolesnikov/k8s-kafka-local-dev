@@ -57,6 +57,7 @@ function up {
 function down {
     ## Stop Tilt, delete all resources created by Tilt, and stop the K8s
     ## cluster
+    set +o errexit  # Do not exit immediately on error
     killall tilt
     tilt down --file "$TILTFILE"
     ctlptl delete --filename "$CLUSTER_CONFIG"
