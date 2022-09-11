@@ -35,6 +35,7 @@ Required tools:
 * [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 * [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 * [ctlptl](https://github.com/tilt-dev/ctlptl#how-do-i-install-it)
+* [helm](https://helm.sh/docs/intro/install/)
 * [Tilt](https://docs.tilt.dev/install.html)
 
 Recommended tools:
@@ -57,11 +58,11 @@ Tear down the local dev environment with `./run down`.
 ## TODO
 
 * Add Kafka service
-* Add Kafka-Connect cluster (https://strimzi.io/blog/2021/03/29/connector-build/)
+* Add Kafka-Connect cluster (https://strimzi.io/blog/2021/03/29/connector-build/ )
 * Add Kafka Schema Registry
 * Add PostgreSQL service
 * Add S3 compatible service (MinIO)
-* Add AKHQ Kafka WebUI (https://github.com/tchiotludo/akhq/tree/dev/helm/akhq)
+* Add AKHQ Kafka WebUI (https://github.com/tchiotludo/akhq/tree/dev/helm/akhq )
 
 ## Notes
 
@@ -84,4 +85,4 @@ YAML definitions:
 * Operator: https://strimzi.io/install/latest?namespace=kafka
 * Kafka CRD (had to add "namespace: kafka" manually): https://strimzi.io/examples/latest/kafka/kafka-ephemeral.yaml
 
-Examples of other custom resource definitions: https://github.com/strimzi/strimzi-kafka-operator/tree/0.30.0/examples
+Examples of other custom resource definitions: https://github.com/strimzi/strimzi-kafka-operator/tree/0.31.0/examples
