@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: scala-app-container
-          image: zeppelin/k8s-local-dev
+          image: kolesnikov/k8s-local-dev
           volumeMounts:
             - name: data
               mountPath: /data
