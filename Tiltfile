@@ -43,3 +43,19 @@ k8s_yaml("deploy/k8s-kafka-connect-file-stream-source-connector.yaml")
 k8s_kind("KafkaConnector$", pod_readiness="ignore")
 k8s_resource("file-stream-source-connector", resource_deps=['my-connect-cluster'], labels=["kafka-connect"])
 
+# Deploy AKHQ
+load("ext://helm_resource", "helm_repo", "helm_resource")
+helm_repo(
+  name="akhq",
+  url="https://akhq.io/",
+  labels=["kafka-gui"],
+  resource_name="akhq-repo")
+helm_resource(
+  name="akhq",
+  chart="akhq/akhq",
+  namespace="kafka",
+  flags=["--values","deploy/k8s-akhq-values.yaml"],
+  deps=["deploy/k8s-akhq-values.yaml"],
+  port_forwards="8081:8080",
+  resource_deps=["akhq-repo", "my-cluster"],
+  labels=["kafka-gui"])
