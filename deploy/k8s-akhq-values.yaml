@@ -2,12 +2,12 @@
 secrets:
   akhq:
     connections:
-      my-cluster-plain-text:
+      my-cluster:
         properties:
           bootstrap.servers: "my-cluster-kafka-bootstrap:9092"
         schema-registry:
           url: "http://schema-registry:8081"
           type: "confluent"
         connect:
-          - name: "connect"
+          - name: "my-connect-cluster"
             url: "http://my-connect-cluster-connect-api:8083"
