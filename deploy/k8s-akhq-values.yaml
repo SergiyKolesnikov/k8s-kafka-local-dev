@@ -1,23 +1,13 @@
 ---
-# For `extraEnv` with `AKHQ_CONFIGURATION` to work, the `configuration` value
-# must be set to `false`. See
-# https://github.com/tchiotludo/akhq/discussions/1203
-extraEnv:
-  - name: AKHQ_CONFIGURATION
-    value: |
-      akhq:
-        connections:
-          docker-kafka-server:
-            properties:
-              bootstrap.servers: "my-cluster-kafka-bootstrap:9092"
-            schema-registry:
-              url: "http://schema-registry:8081"
-            connect:
-              - name: "connect"
-                url: "http://my-connect-cluster-connect-api:8083"
-        server:
-          access-log:
-            enabled: false
-            name: org.akhq.log.access
-          
-configuration: false
+secrets:
+  akhq:
+    connections:
+      my-cluster-plain-text:
+        properties:
+          bootstrap.servers: "my-cluster-kafka-bootstrap:9092"
+        schema-registry:
+          url: "http://schema-registry:8081"
+          type: "confluent"
+        connect:
+          - name: "connect"
+            url: "http://my-connect-cluster-connect-api:8083"
