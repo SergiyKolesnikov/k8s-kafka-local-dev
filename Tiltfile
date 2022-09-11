@@ -29,6 +29,17 @@ k8s_yaml("deploy/k8s-kafka-cluster.yaml")
 k8s_resource("my-cluster", resource_deps=['strimzi-cluster-operator'], labels=["kafka"])
 
 # Deploy Kafka Connect cluster
-# k8s_kind('KafkaConnect', pod_readiness="wait")
-# k8s_yaml("deploy/k8s-kafka-connect-cluster.yaml")
-# k8s_resource("my-connect-cluster", resource_deps=['my-cluster'], labels=["kafka"])
+docker_build(
+    "kolesnikov/k8s-local-dev-kafkaconnect",
+    context=".",
+    dockerfile="deploy/Dockerfile.kafka-connect",
+    only=["deploy/connect-file-3.2.2.jar"],
+)
+k8s_yaml("deploy/k8s-kafka-connect-cluster.yaml")
+k8s_kind("KafkaConnect$", image_json_path="{.spec.image}", pod_readiness="wait")
+k8s_resource("my-connect-cluster", resource_deps=['my-cluster'], labels=["kafka-connect"])
+# Deploy File-Source Connector
+k8s_yaml("deploy/k8s-kafka-connect-file-stream-source-connector.yaml")
+k8s_kind("KafkaConnector$", pod_readiness="ignore")
+k8s_resource("file-stream-source-connector", resource_deps=['my-connect-cluster'], labels=["kafka-connect"])
+
