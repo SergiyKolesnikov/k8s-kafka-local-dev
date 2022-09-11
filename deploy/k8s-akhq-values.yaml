@@ -10,8 +10,8 @@ extraEnv:
           docker-kafka-server:
             properties:
               bootstrap.servers: "my-cluster-kafka-bootstrap:9092"
-            # schema-registry:
-            #   url: "http://schemaregistry:8085"
+            schema-registry:
+              url: "http://schema-registry:8081"
             connect:
               - name: "connect"
                 url: "http://my-connect-cluster-connect-api:8083"

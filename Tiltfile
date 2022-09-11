@@ -1,3 +1,5 @@
+load("ext://helm_resource", "helm_repo", "helm_resource")
+
 # Watch `src` and rebuild the JAR if any source file changes
 local_resource(
     "app-jar",
@@ -44,7 +46,6 @@ k8s_kind("KafkaConnector$", pod_readiness="ignore")
 k8s_resource("file-stream-source-connector", resource_deps=['my-connect-cluster'], labels=["kafka-connect"])
 
 # Deploy AKHQ
-load("ext://helm_resource", "helm_repo", "helm_resource")
 helm_repo(
   name="akhq",
   url="https://akhq.io/",
@@ -59,3 +60,19 @@ helm_resource(
   port_forwards="8081:8080",
   resource_deps=["akhq-repo", "my-cluster"],
   labels=["kafka-gui"])
+
+# Deploy Kafka Schema Registry
+helm_repo(
+  name="bitnami",
+  url="https://charts.bitnami.com/bitnami",
+  labels=["kafka-schema-registry"],
+  resource_name="schema-registry-repo")
+helm_resource(
+  name="schema-registry",
+  chart="bitnami/schema-registry",
+  namespace="kafka",
+  flags=["--values","deploy/k8s-kafka-schema-registry-values.yaml"],
+  deps=["deploy/k8s-kafka-schema-registry-values.yaml"],
+  port_forwards="8085:8081",
+  resource_deps=["schema-registry-repo", "my-cluster"],
+  labels=["kafka-schema-registry"])

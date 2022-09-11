@@ -1,0 +1,10 @@
+---
+externalKafka:
+  brokers:
+    - PLAINTEXT://my-cluster-kafka-bootstrap:9092
+listeners: "http://0.0.0.0:8081"
+hostname: schema-registry
+kafka:
+  enabled: false  # do not install its own kafka
+zookeeper:
+  enabled: false  # do not install its own zookeeper
