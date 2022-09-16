@@ -4,7 +4,7 @@ load("ext://helm_resource", "helm_repo", "helm_resource")
 local_resource(
     "app-jar",
     cmd="sbt clean assembly",
-    deps=["src"],
+    deps=["src", "build.sbt"],
     labels=["scala-app"],
 )
 
