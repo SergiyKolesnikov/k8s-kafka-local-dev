@@ -7,24 +7,26 @@ and running in the cluster.
 
 Project contents:
 .
-├── build.sbt                  - SBT build script
-├── deploy                     - This directory contains configuration files for the local dev environment
-│   ├── Dockerfile             - Dockerfile for the HTTP server
-│   ├── k8s-resources.yaml     - Definitions of resources created in the K8s cluster
-│   ├── kind-cluster.yaml      - Cluster configuration
-│   └── mounts                 - This directory is mounted in all K8s nodes
-│       └── message.txt        - Text file served by the HTTP server
-├── project                    - Scala project related settings
+├── build.sbt                         - SBT build script
+├── deploy                            - This directory contains configuration files for the local dev environment
+│   ├── Dockerfile.kafka-connect      - Dockerfile for a worker of the Kafka Connect cluster
+│   ├── Dockerfile.scala-app          - Dockerfile for the HTTP server application
+│   ├── deploy/connect-file-3.2.2.jar - FileStreamSourceConnector for the Kafka Connect cluster
+│   ├── k8s-*.yaml                    - Definitions of resources created in the K8s cluster
+│   ├── kind-cluster.yaml             - Cluster configuration
+│   └── mounts                        - This directory is mounted in all K8s nodes
+│       └── message.txt               - Text file served by the HTTP server
+├── project                           - Scala project related settings
 │   ├── build.properties
 │   └── plugins.sbt
 ├── README.md
-├── run                        - Task runner for bringing up and tearing down the dev environment
+├── run                               - Task runner for bringing up and tearing down the dev environment
 ├── src
 │   └── main
 │       └── scala
 │           └── hello
-│               └── Main.scala - A simple HTTP server logic that will run in K8s
-└── Tiltfile                   - Tilt configureation
+│               └── Main.scala        - A simple HTTP server logic that will run in K8s
+└── Tiltfile                          - Tilt configureation
 
 ## Setup
 
@@ -41,19 +43,35 @@ Required tools:
 Recommended tools:
 * [K9s](https://github.com/derailed/k9s/releases)
 
-## Run
+FileStreamSourceConnector## Run
 
 Bring up the local dev environment with `./run up`. 
 
 The relevant information, such as the URL of the Tilt Web UI, will be output to
-the console. The HTTP server is available at http://localhost:8080.
+the console. 
 
-Tilt is configured such that any change to the source code of the HTTP server,
-Dockerfile, or definitions of the K8s resources will automatically trigger a
-rebuild and redeployment of the corresponding artifacts. That is, you will
-immediately see the corresponding change.
+Tilt is configured such that any change to the source code of the example
+application, Dockerfile, or definitions of the K8s resources will automatically
+trigger a rebuild and redeployment of the corresponding artifacts. That is, you
+will immediately see the corresponding change.
 
 Tear down the local dev environment with `./run down`.
+
+## Example Application: HTTP server
+
+After the start, the HTTP server is available at http://localhost:8080/.
+
+The root endpoint will print the text form `deploy/mounts/message.txt`.
+
+The http://localhost:8080/sleep-short endpoint will return a message after
+seeping for some short time.
+
+The http://localhost:8080/sleep-long endpoint will return a message after
+seeping for some long time.
+
+The `/sleep-short` and `/sleep-long` endpoints are meant to demonstrate that the
+HTTP server can run blocking operations without blocking itself, because those
+operation are started in different threads.
 
 ## TODO
 
