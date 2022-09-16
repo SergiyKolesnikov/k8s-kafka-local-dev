@@ -6,14 +6,15 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{StatusCodes, HttpResponse}
 import akka.util.Timeout
 
 import scala.concurrent.duration._
-import scala.concurrent.{Future, ExecutionContext }
+import scala.concurrent.blocking
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Failure
 import scala.util.Success
+import scala.language.postfixOps
 
 import java.time.Duration
 
@@ -46,23 +47,64 @@ object QuickstartApp {
 
 class UserRoutes(messageFilepath: String)(implicit val system: ActorSystem[_]) {
 
-import akka.http.scaladsl.model.StatusCodes
+  import akka.http.scaladsl.model.StatusCodes
   // If ask takes more time than this to complete the request is failed
   private implicit val timeout = Timeout.create(Duration.ofSeconds(5))
   private implicit val executionContext = ExecutionContext.global
 
   val userRoutes: Route =
-    path("") {
-      get {
-        val f: Future[String] = Future {
-          val source = scala.io.Source.fromFile(messageFilepath)
-          val lines = try source.mkString finally source.close()
-          lines
+    concat(
+      path("") {
+        get {
+          val f: Future[String] = Future {
+            val source = scala.io.Source.fromFile(messageFilepath)
+            val lines = try source.mkString finally source.close()
+            lines
+          }
+          onComplete(f) {
+            case Success(lines) => complete(lines)
+            case Failure(t) => complete(HttpResponse(StatusCodes.InternalServerError, entity = "An error has occurred: " + t.getMessage))
+          }
         }
-        onComplete(f) {
-          case Success(lines) => complete(lines)
-          case Failure(t) => complete(HttpResponse(StatusCodes.InternalServerError, entity = "An error has occurred: " + t.getMessage))
+      },
+      path("fib40") {
+        get {
+          val f: Future[String] = Future {
+            blocking {
+              fib(40)
+            }
+            // Thread.sleep(15000)
+            "I am awake after fib(40)"
+          }
+          onComplete(f) {
+            case Success(lines) => complete(lines)
+            case Failure(t) => complete(HttpResponse(StatusCodes.InternalServerError, entity = "An error has occurred: " + t.getMessage))
+          }
+        }
+      },
+      path("fib47") {
+        get {
+          val f: Future[String] = Future {
+            blocking {
+              fib(47)
+            }
+            "I am awake after fib(47)"
+          }
+          onComplete(f) {
+            case Success(lines) => complete(lines)
+            case Failure(t) => complete(HttpResponse(StatusCodes.InternalServerError, entity = "An error has occurred: " + t.getMessage))
+          }
         }
       }
+    )
+
+  def fib(index: Int): Int = {
+    if (index <= 0) {
+      0
+    } else if (index == 1) {
+      1
+    } else {
+      fib(index - 1) + fib(index - 2)
     }
+  }
 }
