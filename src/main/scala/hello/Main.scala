@@ -1,11 +1,9 @@
 package hello
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.AskPattern._
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.model.{StatusCodes, HttpResponse}
 import akka.util.Timeout
 
@@ -16,41 +14,28 @@ import scala.util.Failure
 import scala.util.Success
 import scala.language.postfixOps
 
-import java.time.Duration
-
 object QuickstartApp {
-  private def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit = {
-    import system.executionContext
-
-    val futureBinding = Http().newServerAt("localhost", 8080).bind(routes)
-    futureBinding.onComplete {
-      case Success(binding) =>
-        val address = binding.localAddress
-        system.log.info("Server online at http://{}:{}/", address.getHostString, address.getPort)
-      case Failure(ex) =>
-        system.log.error("Failed to bind HTTP endpoint, terminating system", ex)
-        system.terminate()
-    }
-  }
 
   def main(args: Array[String]): Unit = {
-    val rootBehavior = Behaviors.setup[Nothing] { context =>
-
-      val routes = new UserRoutes("/data/message.txt")(context.system)
-      startHttpServer(routes.userRoutes)(context.system)
-
-      Behaviors.empty
+    val httpServer = new UserRoutes()
+    httpServer.start()
+    println("HTTP Server is starting!")
+    sys.ShutdownHookThread {
+      httpServer.stop()
     }
-    val system = ActorSystem[Nothing](rootBehavior, "HelloAkkaHttpServer")
   }
 }
 
-class UserRoutes(messageFilepath: String)(implicit val system: ActorSystem[_]) {
+class UserRoutes(
+  val host: String = "0.0.0.0",
+  val port: Int = 8080,
+  val messageFilepath: String = "/data/message.txt"
+) {
 
-  import akka.http.scaladsl.model.StatusCodes
-  // If ask takes more time than this to complete the request is failed
-  private implicit val timeout = Timeout.create(Duration.ofSeconds(5))
-  private implicit val executionContext = ExecutionContext.global
+  private var bindingFuture: Future[Http.ServerBinding] = null
+
+  private implicit val system = ActorSystem("HelloWorldHttpServer")
+  private implicit val executionContext = system.dispatcher
 
   val userRoutes: Route =
     concat(
@@ -67,14 +52,11 @@ class UserRoutes(messageFilepath: String)(implicit val system: ActorSystem[_]) {
           }
         }
       },
-      path("fib40") {
+      path("sleep-short") {
         get {
+          // The Future will prevent sleep() from blocking the server thread.
           val f: Future[String] = Future {
-            blocking {
-              fib(40)
-            }
-            // Thread.sleep(15000)
-            "I am awake after fib(40)"
+            s"I am awake after ${sleep(1000)}"
           }
           onComplete(f) {
             case Success(lines) => complete(lines)
@@ -82,13 +64,15 @@ class UserRoutes(messageFilepath: String)(implicit val system: ActorSystem[_]) {
           }
         }
       },
-      path("fib47") {
+      path("sleep-long") {
         get {
+          // The Future will prevent sleep() from blocking the server thread.
+          // So, you can run /sleep-long endpoint and then /sleep-short. The
+          // /sleep-short will return much faster, as expected, because the two
+          // will run in two different threads and none of them will block the
+          // server thread.
           val f: Future[String] = Future {
-            blocking {
-              fib(47)
-            }
-            "I am awake after fib(47)"
+            s"I am awake after ${sleep(15000)}"
           }
           onComplete(f) {
             case Success(lines) => complete(lines)
@@ -98,13 +82,20 @@ class UserRoutes(messageFilepath: String)(implicit val system: ActorSystem[_]) {
       }
     )
 
-  def fib(index: Int): Int = {
-    if (index <= 0) {
-      0
-    } else if (index == 1) {
-      1
-    } else {
-      fib(index - 1) + fib(index - 2)
-    }
+  def sleep(sleep_time: Long): Long = {
+    Thread.sleep(sleep_time)
+    return sleep_time
+  }
+
+  def start() {
+    bindingFuture = Http().bindAndHandle(
+      userRoutes,
+      host,
+      port
+    )
+  }
+
+  def stop() {
+    bindingFuture.flatMap(_.unbind()).onComplete(_ => system.terminate())
   }
 }
