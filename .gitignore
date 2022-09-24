@@ -4,3 +4,5 @@ target/
 .bloop/
 .ammonite/
 metals.sbt
+
+/deploy/mounts/minio

@@ -37,13 +37,13 @@ Required tools:
 * [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 * [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 * [ctlptl](https://github.com/tilt-dev/ctlptl#how-do-i-install-it)
-* [helm](https://helm.sh/docs/intro/install/)
+* [Helm](https://helm.sh/docs/intro/install/)
 * [Tilt](https://docs.tilt.dev/install.html)
 
 Recommended tools:
 * [K9s](https://github.com/derailed/k9s/releases)
 
-FileStreamSourceConnector## Run
+## Run
 
 Bring up the local dev environment with `./run up`. 
 
@@ -81,7 +81,7 @@ operation are started in different threads.
 
 ## Notes
 
-### Strimzi (Kafka) installation instructions
+### Strimzi (Kafka)
 
 https://strimzi.io/quickstarts/
 
@@ -101,3 +101,21 @@ YAML definitions:
 * Kafka CRD (had to add "namespace: kafka" manually): https://strimzi.io/examples/latest/kafka/kafka-ephemeral.yaml
 
 Examples of other custom resource definitions: https://github.com/strimzi/strimzi-kafka-operator/tree/0.31.0/examples
+
+### MinIO
+
+https://min.io/docs/minio/kubernetes/upstream/index.html?ref=docs-redirect#procedure
+
+``` shell
+minio_yaml="deploy/k8s-minio-dev.yaml"
+wget https://raw.githubusercontent.com/minio/docs/master/source/extra/examples/minio-dev.yaml -O $minio_yaml
+```
+
+Open `$minio_yaml` and delete the namespace definition, because we will deploy MinIO in the
+existing `kafka` namespace.
+
+``` shell
+sed -i 's/namespace: minio-dev/namespace: kafka/' $minio_yaml
+sed -i 's_path: /mnt/disk1/data_path: /mnt/host-volumes/minio_' $minio_yaml
+sed -i -e '/nodeSelector:$/d' -e '/kubernetes.io\/hostname: kubealpha.local/d' $minio_yaml
+```

@@ -57,7 +57,7 @@ helm_resource(
   namespace="kafka",
   flags=["--values","deploy/k8s-akhq-values.yaml"],
   deps=["deploy/k8s-akhq-values.yaml"],
-  port_forwards="8081:8080",
+  port_forwards=[port_forward(8081, 8080, "AKHQ WebUI")],
   resource_deps=["akhq-repo", "my-cluster"],
   labels=["kafka-gui"])
 
@@ -76,3 +76,15 @@ helm_resource(
   port_forwards="8085:8081",
   resource_deps=["schema-registry-repo", "my-cluster"],
   labels=["kafka-schema-registry"])
+
+# Deploy MinIO S3
+k8s_yaml("deploy/k8s-minio-dev.yaml")
+
+# Bundles the above pieces together. Allows additional configuration, such as
+# port forwarding.
+k8s_resource(
+  "minio",
+  labels=["minio"],
+  port_forwards=[
+    port_forward(9090, 9090, "MinIO WebUI"),
+    port_forward(9000, 9000, "MinIO API")])
