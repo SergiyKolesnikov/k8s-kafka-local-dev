@@ -5,4 +5,5 @@ target/
 .ammonite/
 metals.sbt
 
-/deploy/mounts/minio
+/deploy/mounts/minio/*
+!/deploy/mounts/minio/.gitkeep

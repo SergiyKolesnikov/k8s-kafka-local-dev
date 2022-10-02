@@ -1,12 +1,12 @@
-# https://hub.docker.com/_/postgres
 ---
+# https://hub.docker.com/_/postgres
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
     app: postgres
   name: postgres
-  namespace: kafka # Change this value to match the namespace metadata.name
+  namespace: kafka
 spec:
   containers:
     - name: postgres
@@ -24,3 +24,16 @@ spec:
       hostPath:
         path: /mnt/host-volumes/postgres
         type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: kafka
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
