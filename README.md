@@ -1,21 +1,32 @@
-# Kubernetes (K8s) Local Dev Environment
+# Kubernetes (K8s) and Kafka Local Dev Environment
 
-This is a local K8s dev environment for learning and experimenting with
-K8s. After setting up and running the environment, you will get a K8s cluster
-running locally on you machine and a simple HTTP server application deployed
-and running in the cluster.
+This is a local K8s dev environment with Kafka and several additional
+infrastructure services (such as an AWS S3 compatible object storage service
+MinIO).  It is meant for learning and experimenting with K8s and Kafka.
+
+After setting up and running the environment, you will get a K8s and Kafka
+clusters running locally on you machine and a simple HTTP server application
+deployed and running in the cluster.
+
+We use [Tilt](https://docs.tilt.dev/) to manage the K8s local development
+environment.
 
 Project contents:
+
+```
 .
 ├── build.sbt                         - SBT build script
 ├── deploy                            - This directory contains configuration files for the local dev environment
 │   ├── Dockerfile.kafka-connect      - Dockerfile for a worker of the Kafka Connect cluster
 │   ├── Dockerfile.scala-app          - Dockerfile for the HTTP server application
-│   ├── deploy/connect-file-3.2.2.jar - FileStreamSourceConnector for the Kafka Connect cluster
-│   ├── k8s-*.yaml                    - Definitions of resources created in the K8s cluster
+│   ├── connect-file-3.2.2.jar        - FileStreamSourceConnector for the Kafka Connect cluster
+│   ├── k8s-*.yaml                    - Manifests describing resources to be created in the K8s cluster
 │   ├── kind-cluster.yaml             - Cluster configuration
 │   └── mounts                        - This directory is mounted in all K8s nodes
 │       └── message.txt               - Text file served by the HTTP server
+│       └── minio                     - MinIO data
+│       └── postgres                  - Postgres init scripts
+│           └── links.sql
 ├── project                           - Scala project related settings
 │   ├── build.properties
 │   └── plugins.sbt
@@ -27,6 +38,7 @@ Project contents:
 │           └── hello
 │               └── Main.scala        - A simple HTTP server logic that will run in K8s
 └── Tiltfile                          - Tilt configureation
+```
 
 ## Setup
 
@@ -73,11 +85,41 @@ The `/sleep-short` and `/sleep-long` endpoints are meant to demonstrate that the
 HTTP server can run blocking operations without blocking itself, because those
 operation are started in different threads.
 
+## Kafka
+
+### AKHQ WebUI
+
+To manage Kafka using a WebUI, use the port-forward link of the akhq resource
+in the Tilt's WebUI.
+
+## MinIO
+
+To manage MinIO using a WebUI, use the port-forward link of the minio resource
+in the Tilt's WebUI.
+
+User: minioadmin
+Password: minioadmin
+
+The directory `deploy/mounts/minio` is mounted into the K8s container running
+MinIO.  MinIO stores its data files there.
+
+## PostgreSQL
+
+To access PostgreSQL using a WebUI, use the port-forward link of the adminer
+resource in the Tilt's WebUI.
+
+User: postgres
+Password: mysecret
+
+The directory `deploy/mounts/postgres` is mounted into the K8s container
+running Postgres.  Any `*.sql` script in this directory will be executed after
+the database is up.  These scripts can be used to create databases and
+populating them with data. For more information see "Initialization scripts" in
+the [documentation](https://hub.docker.com/_/postgres).
+
 ## TODO
 
-* Add S3 compatible service (MinIO)
 * Use helm to install Strimzi Kafka operator ()
-* Add PostgreSQL service
 
 ## Notes
 
@@ -119,3 +161,10 @@ sed -i 's/namespace: minio-dev/namespace: kafka/' $minio_yaml
 sed -i 's_path: /mnt/disk1/data_path: /mnt/host-volumes/minio_' $minio_yaml
 sed -i -e '/nodeSelector:$/d' -e '/kubernetes.io\/hostname: kubealpha.local/d' $minio_yaml
 ```
+
+### PostgreSQL and DB WebUI Adminer
+
+We just wrote pod manifests based on the corresponding Docker Hub documentation:
+
+- [Postgres](https://hub.docker.com/_/postgres)
+- [Adminer](https://hub.docker.com/_/adminer)
