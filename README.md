@@ -1,7 +1,7 @@
 # Kubernetes (K8s) and Kafka Local Dev Environment
 
 This is a local K8s dev environment with Kafka and several additional
-infrastructure services (such as an AWS S3 compatible object storage service
+infrastructure services (such as, an AWS S3 compatible object-storage service
 MinIO).  It is meant for learning and experimenting with K8s and Kafka.
 
 After setting up and running the environment, you will get a K8s and Kafka
@@ -23,8 +23,9 @@ Project contents:
 │   ├── k8s-*.yaml                    - Manifests describing resources to be created in the K8s cluster
 │   ├── kind-cluster.yaml             - Cluster configuration
 │   └── mounts                        - This directory is mounted in all K8s nodes
-│       └── message.txt               - Text file served by the HTTP server
-│       └── minio                     - MinIO data
+│       └── app
+│           └── message.txt           - Text file served by the HTTP server
+│       └── minio                     - MinIO stores its data here
 │       └── postgres                  - Postgres init scripts
 │           └── links.sql
 ├── project                           - Scala project related settings
