@@ -90,8 +90,23 @@ operation are started in different threads.
 
 ### AKHQ WebUI
 
-To manage Kafka using a WebUI, use the port-forward link of the akhq resource
+To manage Kafka using a WebUI, use the port-forward link of the AKHQ resource
 in the Tilt's WebUI.
+
+### Kafka Connect
+
+We use Strimzi's Kafka Connect as described in its [documentation](https://strimzi.io/docs/operators/latest/configuring.html#assembly-kafka-connect-str).
+
+As an example, we use the [FilesStreamSource
+connector](https://mvnrepository.com/artifact/org.apache.kafka/connect-file/3.3.1)
+that reads lines from a text file and produces them to a topic.  The
+connector's JAR is `deploy/connect-file-3.2.2.jar`.  The JAR is used in the
+connect-cluster-worker dockerfile `deploy/Dockerfile.kafka-connect`, which in
+its turn is used in the KafkaConnect resource
+`deploy/k8s-kafka-connect-cluster.yaml` to configure the Connect cluster.  That
+is every connect-cluster worker will contain JARs of all configured connectors.
+
+The FileStreamSource connector is counfigured through the KafkaConnector resource `deploy/k8s-kafka-connect-file-stream-source-connector.yaml`.
 
 ## MinIO
 
